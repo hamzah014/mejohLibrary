@@ -6,5 +6,5 @@ A PHP library for service functions and utilities.
 
 You can install `mejohLibrary` via Composer. Run the following command in your terminal:
 
-```run
-composer require packhelper/multi-service-pack:dev-main
+```bash
+composer require mejoh/mejoh-library:dev-main
