@@ -22,6 +22,7 @@ composer require mejoh/mejoh-library:dev-main
 | `Currency` | For currency conversion utilities.  |
 | `Validation` | For validation functionality and utilities.  |
 | `Hashing` | For hashing utilities.  |
+| `Captcha` | For generating captcha.  |
 
 
 ## Usage/Examples
@@ -34,6 +35,7 @@ use MejohLibrary\Client;
 use MejohLibrary\Currency;
 use MejohLibrary\Validation;
 use MejohLibrary\Hashing;
+use MejohLibrary\Captcha;
 
 require 'vendor/autoload.php';
 
@@ -61,6 +63,11 @@ $pasw = $validation->generatePassword(30);
 ////HASHING CLASS////
 $hashing = new Hashing();
 $generate = $hashing->generate($code, $value);
+
+////CAPTCHA CLASS////
+$captcha = new Captcha();
+$captcha->setText('123');
+$data = $captcha->generateBase64();
 ```
 
 ## Authors
