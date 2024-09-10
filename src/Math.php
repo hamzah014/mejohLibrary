@@ -5,13 +5,13 @@ use InvalidArgumentException;
 
 class Math
 {
-    
+
     /**
      * Adds two numbers with a specified decimal precision.
      *
      * @param string $a The first number to add.
      * @param string $b The second number to add.
-     * @param int $decimal The number of decimal places to round the result to.
+     * @param int $decimal The number of decimal places to round the result to (default - 2).
      * 
      * Example usage:
      * $a = "1.234";
@@ -21,7 +21,7 @@ class Math
      *
      * @return string The sum of the two numbers.
      */
-    public function add($a, $b, $decimal)
+    public function add($a, $b, $decimal = 2)
     {
         $sum = bcadd($a, $b, $decimal);
         return $sum;
@@ -32,7 +32,7 @@ class Math
      *
      * @param string $a The number to subtract from.
      * @param string $b The number to subtract.
-     * @param int $decimal The number of decimal places to round the result to.
+     * @param int $decimal The number of decimal places to round the result to (default - 2).
      * 
      * Example usage:
      * $a = "5.678";
@@ -42,7 +42,7 @@ class Math
      *
      * @return string The result of the subtraction.
      */
-    public function substract($a, $b, $decimal)
+    public function substract($a, $b, $decimal = 2)
     {
         $sub = bcsub($a, $b, $decimal);
         return $sub;
@@ -53,7 +53,7 @@ class Math
      *
      * @param string $a The first number to multiply.
      * @param string $b The second number to multiply.
-     * @param int $decimal The number of decimal places to round the result to.
+     * @param int $decimal The number of decimal places to round the result to (default - 2).
      * 
      * Example usage:
      * $a = "1.23";
@@ -63,7 +63,7 @@ class Math
      *
      * @return string The product of the two numbers.
      */
-    public function multiply($a, $b, $decimal)
+    public function multiply($a, $b, $decimal = 2)
     {
         $mult = bcmul($a, $b, $decimal);
         return $mult;
@@ -74,7 +74,7 @@ class Math
      *
      * @param string $a The number to be divided.
      * @param string $b The divisor.
-     * @param int $decimal The number of decimal places to round the result to.
+     * @param int $decimal The number of decimal places to round the result to (default - 2).
      * 
      * Example usage:
      * $a = "10.50";
@@ -84,7 +84,7 @@ class Math
      *
      * @return string The result of the division.
      */
-    public function divide($a, $b, $decimal)
+    public function divide($a, $b, $decimal = 2)
     {
         $div = bcdiv($a, $b, $decimal);
         return $div;
