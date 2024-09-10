@@ -16,9 +16,10 @@ composer require mejoh/mejoh-library:dev-main
 
 |   Name    | Description                |
 | :-------- | :------------------------- |
-| `Client ` | For request fetch client.   |
-| `IpLocator ` | For getting country information by locate their IP address.   |
-| `Math ` | For mathematic functionality usage.  |
+| `Client` | For request fetch client.   |
+| `IpLocator` | For getting country information by locate their IP address.   |
+| `Math` | For mathematic functionality usage.  |
+| `Currency` | For currency conversion utilities.  |
 
 
 ## Usage/Examples
@@ -28,6 +29,7 @@ composer require mejoh/mejoh-library:dev-main
 use MejohLibrary\IpLocator;
 use MejohLibrary\Math;
 use MejohLibrary\Client;
+use MejohLibrary\Currency;
 
 require 'vendor/autoload.php';
 
@@ -40,8 +42,13 @@ $math = new Math();
 echo 'remainder - ' . $math->remainder(23,3);
 
 ////CLIENT CLASS////
+//To get API Key - please visit https://marketdata.tradermade.com//
 $client = new Client($baseurl, $headers);
 $response = $client->request($uriurl, 'GET', $bodyData);
+
+////CURRENCY CLASS////
+$apikey = 'API_KEY_HERE';
+$currency = new Currency($apikey);
 ```
 
 ## Authors

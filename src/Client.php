@@ -111,6 +111,11 @@ class Client
             return ['error' => $err, 'status_code' => $httpCode];
         }
         $resp = json_decode($response, true);
+
+        if(isset($resp['error'])){
+            return ['error' => $resp['message'], 'status_code' => $resp['error']];
+
+        }
         return ['response' => $resp, 'status_code' => $httpCode];
 
     }
