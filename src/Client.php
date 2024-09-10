@@ -4,7 +4,7 @@ namespace MejohLibrary;
 
 class Client
 {
-    
+
     /**
      * @var string Base URL for the API endpoint.
      */
@@ -24,14 +24,12 @@ class Client
      * Constructor to initialize the HttpClient with base URL, request type, and headers.
      *
      * @param string $base_url Base URL for the API endpoint.
-     * @param string $request_type HTTP request method (POST/GET) (default is 'GET').
      * @param array $headers Array of HTTP headers (default is an empty array).
      * 
      */
-    public function __construct($base_url, $request_type = 'GET', $headers = [])
+    public function __construct($base_url, $headers = [])
     {
         $this->base_url = $base_url;
-        $this->request_type = $request_type;
 
         $this->configHeader($headers);
 
@@ -56,15 +54,16 @@ class Client
     /**
      * Executes an HTTP request to the specified URI with optional body data.
      *
-     * @param string $uri_interface The URI or endpoint to send the request to.
+     * @param string $uri The URI or endpoint to send the request to.
+     * @param string $request_type HTTP request method (POST/GET) (default is 'GET').
      * @param array $bodyData Data to send in the request body (for POST requests) or query parameters (for GET requests).
      *
      * @return array Response or error information, including the response body and HTTP status code.
      */
-    public function request($uri_interface,$bodyData)
+    public function request($uri,  $request_type = 'GET' ,$bodyData)
     {
-        $url = $this->base_url . $uri_interface;
-        $method = $this->request_type;
+        $url = $this->base_url . $uri;
+        $method = $request_type;
         $headers = $this->headers;
         
         // Initialize the cURL handle
@@ -107,11 +106,12 @@ class Client
         curl_close($ch);
         
         // Return response or error information
+        $err = json_decode($error, true);
         if ($error) {
-            return ['error' => $error, 'status_code' => $httpCode];
+            return ['error' => $err, 'status_code' => $httpCode];
         }
-    
-        return ['response' => $response, 'status_code' => $httpCode];
+        $resp = json_decode($response, true);
+        return ['response' => $resp, 'status_code' => $httpCode];
 
     }
 

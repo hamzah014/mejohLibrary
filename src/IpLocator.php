@@ -2,10 +2,7 @@
 
 namespace MejohLibrary;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-
-class Locator
+class IpLocator
 {
     public const BASE_URL = 'http://ip-api.com';
     public const JSON_URI_URL = '/json';
@@ -14,6 +11,8 @@ class Locator
     protected $locale;
     protected $currency;
     protected $language;
+    protected $countryCode;
+    protected $countryData;
 
     /**
      *
@@ -25,42 +24,31 @@ class Locator
      */
     public function __construct($ipAddress)
     {
-        $this->client = new Client([
-            'base_uri' => self::BASE_URL,
-            'timeout'  => 30.0,
-            'verify'   => false, // Disabling SSL verification
-        ]);
+        $header = [
+            'Accept' => 'application/json'
+        ];
+        
+        $this->client = new Client(self::BASE_URL, $header);
 
-        $this->setData($ipAddress);
-    }
-
-    private function setData($ipAddress)
-    {
         $this->locateIp($ipAddress);
-
-        $data = $this->info;
-        $countryCode = $data['code'];
-        $this->setLocale($countryCode);
-        $this->setLanguage($countryCode);
-        $this->setCurrency($countryCode);
+        $this->getCountry();
+        $this->setLocale();
+        $this->setLanguage();
+        $this->setCurrency();
 
     }
 
     /**
      * To get info of the IP. 
      *  
-     * Return : 
-     * [ 
-     *  name => '', 
-     *  code => '', 
-     * ] 
+     * Return : array of info (name,code) 
      *
      */
     public function getInfo()
     {
         return $this->info;
     }
-
+    
     /**
      * To get locale of the IP. 
      *  
@@ -142,7 +130,11 @@ class Locator
         return $data;
     }
 
-    private function getCountry() : array
+    /**
+     * Get all country from database json.
+     *
+     */
+    private function getCountry()
     {
         // Path to the JSON file
         $jsonFilePath = __DIR__ . '/data/countries.json';
@@ -153,10 +145,10 @@ class Locator
         // Decode the JSON content into an associative array
         $countryData = json_decode($jsonContent, true);
 
-        return $countryData;
+        $this->countryData = $countryData;
 
     }
-    
+
     /**
      * Converts a specified amount from one currency to another.
      *
@@ -173,18 +165,12 @@ class Locator
             $uriurl = self::JSON_URI_URL . "/" . $ipAddress;
 
             // Send a GET request
-            $response = $this->client->request('GET', $uriurl , [
-                'headers' => [
-                    'Accept' => 'application/json',
-                ],
-            ]);
-        
-            // Get the response body
-            $body = $response->getBody();
-            $data = json_decode($body, true); // Decode the JSON response
+            $response = $this->client->request($uriurl, 'GET', []);
         
             // Check if the conversion was successful
-            if (isset($data) && $data['status'] == 'success') {
+            if (isset($response) && $response['status_code'] == 200) {
+
+                $data = $response['response'];
 
                 $country = $data['country'];
                 $countryCode = $data['countryCode'];
@@ -200,7 +186,7 @@ class Locator
                 ];
             }
         
-        } catch (RequestException $e) {
+        } catch (\Exception $e) {
             return [
                 'error' => $e->getMessage()
             ];
@@ -208,19 +194,15 @@ class Locator
     }
 
     /**
-     * Converts a specified amount from one currency to another.
-     *
-     * @param string $countryCode Pass code country for getting locale info. 
-     * 
-     * Example usage:
-     * $countryCode = "MYS";
+     * Set locales of the country.
      *
      */
-    private function setLocale($countryCode)
+    private function setLocale()
     {
         try {
             
-            $countries = $this->getCountry();
+            $countries = $this->countryData;
+            $countryCode = $this->info['code'];
             $locales = null;
 
             foreach ($countries as $country) {
@@ -241,19 +223,15 @@ class Locator
     }
 
     /**
-     * Converts a specified amount from one currency to another.
-     *
-     * @param string $countryCode Pass code country for getting currency info. 
-     * 
-     * Example usage:
-     * $countryCode = "MYS";
+     * Set currency of the country.
      *
      */
-    private function setCurrency($countryCode)
+    private function setCurrency()
     {
         try {
             
-            $countries = $this->getCountry();
+            $countries = $this->countryData;
+            $countryCode = $this->info['code'];
             $currency = null;
 
             foreach ($countries as $country) {
@@ -277,19 +255,15 @@ class Locator
     }
 
     /**
-     * Converts a specified amount from one currency to another.
-     *
-     * @param string $countryCode Pass code country for getting language info. 
-     * 
-     * Example usage:
-     * $countryCode = "MYS";
+     * Set language of the country.
      *
      */
-    private function setLanguage($countryCode)
+    private function setLanguage()
     {
         try {
             
-            $countries = $this->getCountry();
+            $countries = $this->countryData;
+            $countryCode = $this->info['code'];
             $languages = null;
 
             foreach ($countries as $country) {
