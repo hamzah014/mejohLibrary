@@ -10,7 +10,7 @@ You can install `mejohLibrary` via Composer. Run the following command in your t
 composer require mejoh/mejoh-library:dev-main
 ```
 
-## Pacakge Reference
+## Package Reference
 #### Module
 
 
