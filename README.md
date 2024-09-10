@@ -20,6 +20,8 @@ composer require mejoh/mejoh-library:dev-main
 | `IpLocator` | For getting country information by locate their IP address.   |
 | `Math` | For mathematic functionality usage.  |
 | `Currency` | For currency conversion utilities.  |
+| `Validation` | For validation functionality and utilities.  |
+| `Hashing` | For hashing utilities.  |
 
 
 ## Usage/Examples
@@ -30,6 +32,8 @@ use MejohLibrary\IpLocator;
 use MejohLibrary\Math;
 use MejohLibrary\Client;
 use MejohLibrary\Currency;
+use MejohLibrary\Validation;
+use MejohLibrary\Hashing;
 
 require 'vendor/autoload.php';
 
@@ -49,6 +53,14 @@ $response = $client->request($uriurl, 'GET', $bodyData);
 ////CURRENCY CLASS////
 $apikey = 'API_KEY_HERE';
 $currency = new Currency($apikey);
+
+////Validation CLASS////
+$validation = new Validation();
+$pasw = $validation->generatePassword(30);
+
+////HASHING CLASS////
+$hashing = new Hashing();
+$generate = $hashing->generate($code, $value);
 ```
 
 ## Authors
