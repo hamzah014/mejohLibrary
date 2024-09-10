@@ -17,9 +17,7 @@ composer require mejoh/mejoh-library:dev-main
 |   Name    | Description                |
 | :-------- | :------------------------- |
 | `Client ` | For request fetch client.   |
-| :-------- | :------------------------- |
 | `IpLocator ` | For getting country information by locate their IP address.   |
-| :-------- | :------------------------- |
 | `Math ` | For mathematic functionality usage.  |
 
 
@@ -48,4 +46,4 @@ $response = $client->request($uriurl, 'GET', $bodyData);
 
 ## Authors
 
-- [@Hamzah](https://github.com/hamzah014)
+- [@Hamzah(Github)](https://github.com/hamzah014)
