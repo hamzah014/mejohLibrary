@@ -9,6 +9,13 @@ class Captcha
     private $font;
     private $text;
 
+    /**
+     * Constructor to initialize the Captcha class.
+     *
+     * @param int $width Width of the image (default - 200).
+     * @param int $height Height of the image (default - 50).
+     * 
+     */
     public function __construct($width = 200, $height = 50)
     {
         $font = 'arial.ttf';
@@ -17,11 +24,21 @@ class Captcha
         $this->font = __DIR__ . "/font" . "/" . $font;
     }
 
+    /**
+     * Set the text for the captcha.
+     *
+     * @param string $text Text will be display in captcha.
+     * 
+     */
     public function setText($text)
     {
         $this->text = $text;
     }
 
+    /**
+     * Generate the image.
+     * 
+     */
     public function generate()
     {
         
@@ -60,6 +77,10 @@ class Captcha
 
     }
 
+    /**
+     * Generate the image base64 format.
+     * 
+     */
     public function generateBase64()
     {
         $imageData = $this->generate();
