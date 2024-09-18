@@ -7,6 +7,7 @@ class Client
 {
     protected $setting;
     protected $result;
+    protected $clientRequest;
 
     public function __construct()
     {
@@ -24,6 +25,8 @@ class Client
             'response' => [],
             'code' => 200,
         );
+
+        $this->clientRequest = new ClientRequest();
 
     }
 
@@ -137,44 +140,30 @@ class Client
 
         // Attempt to parse the body as JSON
         $resp = json_decode($body, true);
+        $error = null;
+
+        // Check if JSON decoding failed
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $error = json_last_error_msg();
+        }
+
+        if ($httpCode >= 400) {
+            throw new Exception("HTTP Error: " . $error);
+        }
 
         // If the response body contains an error
         if (isset($resp['error'])) {
             throw new Exception($resp['error']);
         }
 
-        // Check if JSON decoding failed
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->result['content'] = $body;
-        }
-
         // Set JSON-decoded response, status code, and headers
+        $this->result['content'] = $body;
         $this->result['response'] = $resp;
         $this->result['header'] = $parsedHeaders;
         $this->result['code'] = $httpCode;
 
-        return $this;
+        return $this->clientRequest->build($this->result);
 
-    }
-
-    public function getContent()
-    {
-        return $this->result['content'];
-    }
-
-    public function getHeader()
-    {
-        return $this->result['header'];
-    }
-
-    public function getStatusCode()
-    {
-        return $this->result['code'];
-    }
-
-    public function getResponse()
-    {
-        return $this->result['response'];
     }
 
 }
