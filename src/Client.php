@@ -1,78 +1,84 @@
 <?php
 
 namespace MejohLibrary;
+use Exception;
 
 class Client
 {
+    protected $setting;
+    protected $result;
 
-    /**
-     * @var string Base URL for the API endpoint.
-     */
-    protected $base_url;
-    
-    /**
-     * @var string HTTP request method (e.g., GET, POST).
-     */
-    protected $request_type;
-    
-    /**
-     * @var array Array of HTTP headers.
-     */
-    protected $headers;
-
-    /**
-     * Constructor to initialize the HttpClient with base URL, request type, and headers.
-     *
-     * @param string $base_url Base URL for the API endpoint.
-     * @param array $headers Array of HTTP headers (default is an empty array).
-     * 
-     */
-    public function __construct($base_url, $headers = [])
+    public function __construct()
     {
-        $this->base_url = $base_url;
+        $this->setting = array(
+            'base_url' => "",
+            'header' => [],
+            'uri_path' => "",
+            'method' => "GET",
+            'body' => []
+        );
 
-        $this->configHeader($headers);
+        $this->result = array(
+            'header' => [],
+            'content' => [],
+            'response' => [],
+            'code' => 200,
+        );
 
     }
 
-    /**
-     * Configures HTTP headers for the request.
-     *
-     * @param array $headers Array of HTTP headers where keys are header names and values are header values.
-     */
-    private function configHeader($headers)
+    private function configHeader(array $headers)
     {
         $formattedHeaders = [];
         foreach ($headers as $key => $value) {
             $formattedHeaders[] = ucfirst($key) . ': ' . $value; // Format as "Key: Value"
         }
 
-        $this->headers = $formattedHeaders;
+        return $formattedHeaders;
 
     }
 
-    /**
-     * Executes an HTTP request to the specified URI with optional body data.
-     *
-     * @param string $uri The URI or endpoint to send the request to.
-     * @param string $request_type HTTP request method (POST/GET) (default is 'GET').
-     * @param array $bodyData Data to send in the request body (for POST requests) or query parameters (for GET requests).
-     *
-     * @return array Response or error information, including the response body and HTTP status code.
-     */
-    public function request($uri,  $request_type = 'GET' ,$bodyData)
+    public function config(string $base_url, array $headers = [])
     {
-        $url = $this->base_url . $uri;
-        $method = $request_type;
-        $headers = $this->headers;
-        
+        $this->setting['base_url'] = $base_url;
+        $this->setting['header'] = $this->configHeader($headers);
+
+        return $this;
+    }
+
+    public function uriPath(string $uri_path)
+    {
+        $this->setting['uri_path'] = $uri_path;
+        return $this;
+    }
+
+    public function method(string $method)
+    {
+        $this->setting['method'] = $method;
+        return $this;
+    }
+
+    public function body(array $body)
+    {
+        $this->setting['body'] = $body;
+        return $this;
+    }
+
+    public function request()
+    {
+        $url = $this->setting['base_url'] . $this->setting['uri_path'];
+        $method = $this->setting['method'];
+        $headers = $this->setting['header'];
+        $bodyData = $this->setting['body'];
+
         // Initialize the cURL handle
         $ch = curl_init();
-        
-        // Common cURL options for all methods
+
+        // Set cURL options
         curl_setopt_array($ch, [
             CURLOPT_URL            => $url,        // The URL for the request
             CURLOPT_RETURNTRANSFER => true,        // Return the response as a string
+            CURLOPT_HEADER         => true,        // Include headers in the response output
             CURLOPT_FOLLOWLOCATION => true,        // Follow redirects
             CURLOPT_ENCODING       => 'gzip',      // Compress the response (Gzip)
             CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_2_0,  // Use HTTP/2 for performance
@@ -81,11 +87,11 @@ class Client
             CURLOPT_TCP_KEEPALIVE  => 1,           // Reuse connections
             CURLOPT_HTTPHEADER     => array_merge(['Connection: keep-alive'], $headers), // Custom headers + keep-alive
         ]);
-        
+
         // Handle GET/POST methods
         if (strtoupper($method) === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true); // Set method to POST
-            
+
             if (!empty($bodyData)) {
                 // Set the POST fields if data is provided (as a JSON string for simplicity)
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($bodyData));
@@ -96,28 +102,79 @@ class Client
             $urlWithParams = $url . '?' . http_build_query($bodyData);
             curl_setopt($ch, CURLOPT_URL, $urlWithParams);
         }
-        
+
         // Execute the request
         $response = curl_exec($ch);
-        $error = curl_error($ch);
+
+        // Check if cURL execution failed
+        if ($response === false) {
+            $error = curl_error($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            return ['error' => $error, 'status_code' => $httpCode];
+        }
+
+        // Get header size before closing the handle
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
+
         // Close the cURL handle
         curl_close($ch);
-        
-        // Return response or error information
-        $err = json_decode($error, true);
-        if ($error) {
-            return ['error' => $err, 'status_code' => $httpCode];
+
+        // Separate headers and body
+        $headers = substr($response, 0, $headerSize);  // Extract headers
+        $body = substr($response, $headerSize);        // Extract body content
+
+        // Parse response headers into an array
+        $headerLines = explode("\r\n", trim($headers));
+        $parsedHeaders = [];
+        foreach ($headerLines as $line) {
+            if (strpos($line, ':') !== false) {
+                list($key, $value) = explode(': ', $line, 2);
+                $parsedHeaders[$key] = $value;
+            }
         }
-        $resp = json_decode($response, true);
 
-        if(isset($resp['error'])){
-            return ['error' => $resp['message'], 'status_code' => $resp['error']];
+        // Attempt to parse the body as JSON
+        $resp = json_decode($body, true);
 
+        // If the response body contains an error
+        if (isset($resp['error'])) {
+            throw new Exception($resp['error']);
         }
-        return ['response' => $resp, 'status_code' => $httpCode];
 
+        // Check if JSON decoding failed
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->result['content'] = $body;
+        }
+
+        // Set JSON-decoded response, status code, and headers
+        $this->result['response'] = $resp;
+        $this->result['header'] = $parsedHeaders;
+        $this->result['code'] = $httpCode;
+
+        return $this;
+
+    }
+
+    public function getContent()
+    {
+        return $this->result['content'];
+    }
+
+    public function getHeader()
+    {
+        return $this->result['header'];
+    }
+
+    public function getStatusCode()
+    {
+        return $this->result['code'];
+    }
+
+    public function getResponse()
+    {
+        return $this->result['response'];
     }
 
 }

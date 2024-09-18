@@ -50,9 +50,15 @@ $math = new Math();
 echo 'remainder - ' . $math->remainder(23,3);
 
 ////CLIENT CLASS////
-//To get API Key - please visit https://marketdata.tradermade.com//
-$client = new Client($baseurl, $headers);
-$response = $client->request($uriurl, 'GET', $bodyData);
+$baseurl = 'https://www.xe.com/currencytables/';
+$request_type = 'GET';
+$header = [];
+$body = [];
+$client = new Client();
+$request = $client->config($baseurl, $header)
+            ->method($request_type)
+            ->body($body)
+            ->request();
 
 ////CURRENCY CLASS////
 $apikey = 'API_KEY_HERE';
