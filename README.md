@@ -23,6 +23,7 @@ composer require mejoh/mejoh-library:dev-main
 | `Validation` | For validation functionality and utilities.  |
 | `Hashing` | For hashing utilities.  |
 | `Captcha` | For generating captcha.  |
+| `QRCode` | For generating QR Code.  |
 
 
 ## Usage/Examples
@@ -36,6 +37,7 @@ use MejohLibrary\Currency;
 use MejohLibrary\Validation;
 use MejohLibrary\Hashing;
 use MejohLibrary\Captcha;
+use MejohLibrary\QRCode;
 
 require 'vendor/autoload.php';
 
@@ -68,6 +70,14 @@ $generate = $hashing->generate($code, $value);
 $captcha = new Captcha();
 $captcha->setText('123');
 $data = $captcha->generateBase64();
+
+////CAPTCHA CLASS////
+$qrcode = new QRCode();
+$uri = $qrcode->generate()
+->setData('Test')
+->setBackgroundColor('#121112')
+->setForegroundColor('#ed0eb9')
+->buildUri();
 ```
 
 ## Authors
