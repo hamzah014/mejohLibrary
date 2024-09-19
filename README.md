@@ -73,9 +73,12 @@ $hashing = new Hashing();
 $generate = $hashing->generate($code, $value);
 
 ////CAPTCHA CLASS////
-$captcha = new Captcha();
-$captcha->setText('123');
-$data = $captcha->generateBase64();
+$captcha = Captcha::create()
+        ->setHeight(100)
+        ->setWidth(100)
+        ->setText('Your Text')
+        ->setFontSize(20)
+        ->generateBase64();
 
 ////CAPTCHA CLASS////
 $qrcode = new QRCode();

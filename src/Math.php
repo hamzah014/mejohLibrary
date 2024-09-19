@@ -121,4 +121,35 @@ class Math
         return $remainder;
     }
 
+    /**
+     * Calculate Exponentiation which require base and exponent number.
+     * 
+     * @param string $base The base number.
+     * @param string $exponent The exponent.
+     * @return string The result of base raised to the power of exponent.
+     */
+    function power($base, $exponent) {
+        return bcpow($base, $exponent);
+    }
+
+    /**
+     * Calculate square root of the number.
+     * 
+     * @param string $number The number to find the square root of.
+     * @return string The square root of the number.
+     */
+    function sqrt($number) {
+        $x = $number;
+        $y = '1';
+        $precision = '0.0000000000001'; // Define precision level
+
+        while (bccomp(bcsub($x, $y), $precision) > 0) {
+            $x = bcdiv(bcadd($x, $y), '2');
+            $y = bcdiv($number, $x);
+        }
+
+        return $x;
+    }
+
+
 }
