@@ -28,7 +28,8 @@ class IpLocator
             'Accept' => 'application/json'
         ];
         
-        $this->client = new Client(self::BASE_URL, $header);
+        $client = new Client();
+        $this->client = $client->config(self::BASE_URL, $header);
 
         $this->locateIp($ipAddress);
         $this->getCountry();
@@ -165,12 +166,18 @@ class IpLocator
             $uriurl = self::JSON_URI_URL . "/" . $ipAddress;
 
             // Send a GET request
-            $response = $this->client->request($uriurl, 'GET', []);
+            $request = $this->client
+                        ->uriPath($uriurl)
+                        ->method('GET')
+                        ->request();
+
+            $response = $request->getResponse();
+            $status_code = $request->getStatusCode();
         
             // Check if the conversion was successful
-            if (isset($response) && $response['status_code'] == 200) {
+            if (isset($response) && $status_code == 200) {
 
-                $data = $response['response'];
+                $data = $response;
 
                 $country = $data['country'];
                 $countryCode = $data['countryCode'];

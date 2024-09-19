@@ -28,8 +28,10 @@ class Currency
         $header = [
             'Accept' => 'application/json'
         ];
+
+        $client = new Client();
         
-        $this->client = new Client(self::BASE_URL, $header);
+        $this->client = $client->config(self::BASE_URL, $header);
         $this->apikey = $apikey;
 
     }
@@ -62,12 +64,18 @@ class Currency
         try {
 
             // Send a GET request
-            $response = $this->client->request($uriurl, 'GET', $body);
+            $request = $this->client->body($body)
+                        ->uriPath($uriurl)
+                        ->method('GET')
+                        ->request();
+
+            $response = $request->getResponse();
+            $status_code = $request->getStatusCode();
         
             // Check if the conversion was successful
-            if (isset($response) && $response['status_code'] == 200) {
+            if (isset($response) && $status_code == 200) {
 
-                $data = $response['response'];
+                $data = $response;
 
                 $result = array(
                     'from'=> $data['base_currency'],
@@ -106,14 +114,19 @@ class Currency
         ];
         
         try {
-
             // Send a GET request
-            $response = $this->client->request($uriurl, 'GET', $body);
+            $request = $this->client->body($body)
+                    ->uriPath($uriurl)
+                    ->method('GET')
+                    ->request();
+
+            $response = $request->getResponse();
+            $status_code = $request->getStatusCode();
         
             // Check if the conversion was successful
-            if (isset($response) && $response['status_code'] == 200) {
+            if (isset($response) && $status_code == 200) {
 
-                $data = $response['response'];
+                $data = $response;
  
                 return $data['available_currencies'];
 
@@ -143,14 +156,19 @@ class Currency
         ];
         
         try {
-
             // Send a GET request
-            $response = $this->client->request($uriurl, 'GET', $body);
+            $request = $this->client->body($body)
+                    ->uriPath($uriurl)
+                    ->method('GET')
+                    ->request();
+
+            $response = $request->getResponse();
+            $status_code = $request->getStatusCode();
         
             // Check if the conversion was successful
-            if (isset($response) && $response['status_code'] == 200) {
+            if (isset($response) && $status_code == 200) {
 
-                $data = $response['response'];
+                $data = $response;
  
                 return $data['available_currencies'];
 
@@ -195,14 +213,19 @@ class Currency
         ];
         
         try {
-
             // Send a GET request
-            $response = $this->client->request($uriurl, 'GET', $body);
+            $request = $this->client->body($body)
+                    ->uriPath($uriurl)
+                    ->method('GET')
+                    ->request();
+
+            $response = $request->getResponse();
+            $status_code = $request->getStatusCode();
         
             // Check if the conversion was successful
-            if (isset($response) && $response['status_code'] == 200) {
+            if (isset($response) && $status_code == 200) {
 
-                $data = $response['response'];
+                $data = $response;
 
                 // Check if the conversion was successful
                 if (isset($data) && isset($data['quotes'])) {
