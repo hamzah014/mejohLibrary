@@ -9,6 +9,8 @@ class Captcha
     private $font;
     private $text;
     private $fontSize;
+    private $generateText;
+    private $filter;
 
     /**
      * Constructor to initialize the Captcha class.
@@ -17,7 +19,7 @@ class Captcha
     public function __construct()
     {
         $width = 200;
-        $height = 50;
+        $height = 100;
         $fontSize = 20;
         $font = 'arial.ttf';
 
@@ -26,6 +28,8 @@ class Captcha
         $this->height = $height;
         $this->fontSize = $fontSize;
         $this->text = $this->randomText();
+        $this->generateText = implode(' ', str_split($this->text));
+        $this->filter = 'pxl';
     }
 
     /**
@@ -51,6 +55,7 @@ class Captcha
     public function setText($text)
     {
         $this->text = $text;
+        $this->generateText = implode(' ', str_split($this->text));
         return $this;
     }
 
@@ -91,6 +96,21 @@ class Captcha
     }
 
     /**
+     * Set filter for the captcha.
+     *
+     * @param string $filter Filter will be used in captcha.
+     * 
+     * OPTION : ["sct","pxl"]
+     * DEFAULT : "pxl"
+     * 
+     */
+    public function setFilter(string $filter)
+    {
+        $this->filter = $filter;
+        return $this;
+    }
+
+    /**
      * Generate the image.
      * 
      */
@@ -124,8 +144,9 @@ class Captcha
         $y = ($this->height - $textHeight) / 2 + $textHeight;
 
         // Draw text on image
-        imagettftext($image, $fontSize, $angle, $x, $y, $textColor, $this->font, $this->text);
+        imagettftext($image, $fontSize, $angle, $x, $y, $textColor, $this->font, $this->generateText);
 
+        $this->setupFilter($image);
         // Output the image to memory
         ob_start();
         imagepng($image);
@@ -134,7 +155,6 @@ class Captcha
 
         // Free up memory
         imagedestroy($image);
-
 
         return $imageData;
 
@@ -156,9 +176,9 @@ class Captcha
 
     private function randomText()
     {
-        $length = 6; $includeNumbers = true; $includeUppercase = true;
+        $length = 5; $includeNumbers = true; $includeUppercase = true;
 
-        $characters = 'abcdefghijklmnopqrstuvwxyz'; // Base character set (lowercase)
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // Base character set (lowercase)
     
         // Optionally include numbers and uppercase letters
         if ($includeNumbers) {
@@ -177,6 +197,21 @@ class Captcha
         }
         
         return $captchaText;
+
+    }
+
+    private function setupFilter($image)
+    {
+
+        switch ($this->filter) {
+            case 'sct':
+                imagefilter($image,  IMG_FILTER_SCATTER,6,8);
+                break;
+            
+            default:
+                imagefilter($image,  IMG_FILTER_PIXELATE,3,true);
+                break;
+        }
 
     }
 
